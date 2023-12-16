@@ -4,22 +4,21 @@ RUN set -eux; \
 	addgroup --gid 99 --system haproxy; \
 	adduser \
 		--disabled-password \
-		--home /var/lib/haproxy \
+		--home /etc/haproxy \
 		--ingroup haproxy \
 		--no-create-home \
 		--system \
 		--uid 99 \
 		haproxy \
 	; \
-	mkdir /var/lib/haproxy; \
-	chown haproxy:haproxy /var/lib/haproxy
+	mkdir /etc/haproxy; \
+	chown haproxy:haproxy /etc/haproxy
 
 ENV HAPROXY_VERSION 2.8.5
 ENV HAPROXY_URL https://www.haproxy.org/download/2.8/src/haproxy-2.8.5.tar.gz
 ENV HAPROXY_SHA256 3f5459c5a58e0b343a32eaef7ed5bed9d3fc29d8aa9e14b36c92c969fc2a60d9
 
 RUN set -eux; \
-	\
  	apk update && \
 	apk add --no-cache --virtual .build-deps \
 		gcc \
@@ -33,13 +32,11 @@ RUN set -eux; \
 		readline-dev \
 		tar \
 	; \
-	\
 	wget -O haproxy.tar.gz "$HAPROXY_URL"; \
 	echo "$HAPROXY_SHA256 *haproxy.tar.gz" | sha256sum -c; \
 	mkdir -p /usr/src/haproxy; \
 	tar -xzf haproxy.tar.gz -C /usr/src/haproxy --strip-components=1; \
 	rm haproxy.tar.gz; \
-	\
 	makeOpts=' \
 		TARGET=linux-musl \
 		USE_GETADDRINFO=1 \
@@ -51,15 +48,12 @@ RUN set -eux; \
 		EXTRA_OBJS=" \
 		" \
 	'; \
-	\
 	nproc="$(getconf _NPROCESSORS_ONLN)"; \
 	eval "make -C /usr/src/haproxy -j '$nproc' all $makeOpts"; \
 	eval "make -C /usr/src/haproxy install-bin $makeOpts"; \
-	\
 	mkdir -p /etc/haproxy; \
 	cp -R /usr/src/haproxy/examples/errorfiles /etc/haproxy/errors; \
 	rm -rf /usr/src/haproxy; \
-	\
 	runDeps="$( \
 		scanelf --needed --nobanner --format '%n#p' --recursive /usr/local \
 			| tr ',' '\n' \
@@ -68,13 +62,8 @@ RUN set -eux; \
 	)"; \
 	apk add --no-network --virtual .haproxy-rundeps $runDeps; \
 	apk del --no-network .build-deps; \
-	\
-# smoke test
 	haproxy -v
 
-# "4. Stopping and restarting HAProxy"
-# "when the SIGTERM signal is sent to the haproxy process, it immediately quits and all established connections are closed"
-# "graceful stop is triggered when the SIGUSR1 signal is sent to the haproxy process"
 STOPSIGNAL SIGUSR1
 
 COPY docker-entrypoint.sh /usr/local/bin/
@@ -85,6 +74,6 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 
 USER haproxy
 
-WORKDIR /var/lib/haproxy
+WORKDIR /etc/haproxy
 
 CMD ["haproxy", "-f", "/etc/haproxy/haproxy.cfg"]

@@ -55,4 +55,4 @@ jobs:
           file: ./project/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: nghiahl/haproxy:alpine-latest
+          tags: nghiahl/haproxy:alpine-v2.8.5

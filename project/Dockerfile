@@ -55,8 +55,7 @@ RUN set -eux; \
 	eval "make -C /usr/src/haproxy -j '$nproc' all $makeOpts"; \
 	eval "make -C /usr/src/haproxy install-bin $makeOpts"; \
 	\
-	mkdir -p /usr/local/etc/haproxy; \
-	cp -R /usr/src/haproxy/examples/errorfiles /usr/local/etc/haproxy/errors; \
+	cp -R /usr/src/haproxy/examples/errorfiles /etc/haproxy/errors; \
 	rm -rf /usr/src/haproxy; \
 	\
 	runDeps="$( \
@@ -80,4 +79,4 @@ USER haproxy
 
 WORKDIR /var/lib/haproxy
 
-CMD ["haproxy", "-f", "/usr/local/etc/haproxy/haproxy.cfg"]
+CMD ["haproxy", "-f", "/etc/haproxy/haproxy.cfg"]

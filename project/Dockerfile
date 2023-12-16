@@ -1,5 +1,12 @@
-FROM alpine:latest
+#
+# NOTE: THIS DOCKERFILE IS GENERATED VIA "apply-templates.sh"
+#
+# PLEASE DO NOT EDIT IT DIRECTLY.
+#
 
+FROM alpine:3.19
+
+# roughly, https://git.alpinelinux.org/aports/tree/main/haproxy/haproxy.pre-install?h=3.12-stable
 RUN set -eux; \
 	addgroup --gid 99 --system haproxy; \
 	adduser \
@@ -18,6 +25,7 @@ ENV HAPROXY_VERSION 2.8.5
 ENV HAPROXY_URL https://www.haproxy.org/download/2.8/src/haproxy-2.8.5.tar.gz
 ENV HAPROXY_SHA256 3f5459c5a58e0b343a32eaef7ed5bed9d3fc29d8aa9e14b36c92c969fc2a60d9
 
+# see https://sources.debian.net/src/haproxy/jessie/debian/rules/ for some helpful navigation of the possible "make" arguments
 RUN set -eux; \
 	\
  	apk update && \
@@ -56,6 +64,7 @@ RUN set -eux; \
 	eval "make -C /usr/src/haproxy -j '$nproc' all $makeOpts"; \
 	eval "make -C /usr/src/haproxy install-bin $makeOpts"; \
 	\
+	mkdir -p /etc/haproxy; \
 	cp -R /usr/src/haproxy/examples/errorfiles /etc/haproxy/errors; \
 	rm -rf /usr/src/haproxy; \
 	\
@@ -68,9 +77,13 @@ RUN set -eux; \
 	apk add --no-network --virtual .haproxy-rundeps $runDeps; \
 	apk del --no-network .build-deps; \
 	\
-
+# smoke test
 	haproxy -v
 
+# https://www.haproxy.org/download/1.8/doc/management.txt
+# "4. Stopping and restarting HAProxy"
+# "when the SIGTERM signal is sent to the haproxy process, it immediately quits and all established connections are closed"
+# "graceful stop is triggered when the SIGUSR1 signal is sent to the haproxy process"
 STOPSIGNAL SIGUSR1
 
 COPY docker-entrypoint.sh /usr/local/bin/
@@ -78,6 +91,7 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 
 USER haproxy
 
+# https://github.com/docker-library/haproxy/issues/200
 WORKDIR /var/lib/haproxy
 
 CMD ["haproxy", "-f", "/etc/haproxy/haproxy.cfg"]

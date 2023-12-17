@@ -5,7 +5,7 @@
 ## Create a ```Dockerfile```
 ```
 FROM nghiahl/haproxy:alpine-v2.8.5
-COPY PATH/TO/CONFIG /etc/haproxy/haproxy.cfg
+COPY path/to/haproxy.cfg /etc/haproxy/haproxy.cfg
 ```
 ## Build the container
 ```

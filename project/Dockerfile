@@ -5,7 +5,6 @@ RUN set -eux; \
 	adduser \
 		--disabled-password \
 		--ingroup haproxy \
-		--no-create-home \
 		--system \
 		--uid 99 \
 		haproxy \

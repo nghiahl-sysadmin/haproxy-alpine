@@ -30,7 +30,6 @@ RUN set -eux; \
 		readline-dev \
 		tar \
 	; \
-	apk add --no-cache bash; \
 	wget -O haproxy.tar.gz "$HAPROXY_URL"; \
 	echo "$HAPROXY_SHA256 *haproxy.tar.gz" | sha256sum -c; \
 	mkdir -p /usr/src/haproxy; \

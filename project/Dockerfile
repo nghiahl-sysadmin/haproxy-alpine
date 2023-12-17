@@ -4,7 +4,6 @@ RUN set -eux; \
 	addgroup --gid 99 --system haproxy; \
 	adduser \
 		--disabled-password \
-		--home /etc/haproxy \
 		--ingroup haproxy \
 		--no-create-home \
 		--system \

@@ -10,7 +10,7 @@ RUN set -eux; \
 		haproxy \
 	; \
 	mkdir /etc/haproxy; \
-	chown haproxy:haproxy /etc/haproxy
+	chown -R haproxy:haproxy /etc/haproxy
  
 ARG HAPROXY_URL=https://www.haproxy.org/download/2.8/src/haproxy-2.8.5.tar.gz
 ARG HAPROXY_SHA256=3f5459c5a58e0b343a32eaef7ed5bed9d3fc29d8aa9e14b36c92c969fc2a60d9

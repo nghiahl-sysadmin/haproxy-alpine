@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM alpine:3.19
 
 RUN set -eux; \
 	addgroup --gid 99 --system haproxy; \
